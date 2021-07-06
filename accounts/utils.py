@@ -4,6 +4,7 @@ from django.template.loader import render_to_string
 from django.utils.http import urlsafe_base64_encode
 from django.utils.encoding import force_bytes
 from django.core.mail import EmailMessage
+from django.contrib.auth.decorators import login_required, user_passes_test
 from django.conf import settings
 import six
 import threading
@@ -43,3 +44,13 @@ class EmailThread(threading.Thread):
 
     def run(self):
         self.email.send()
+
+def login_forbidden(function=None):
+    actual_decorator = user_passes_test(
+        lambda u: u.is_anonymous,
+        login_url='app:home',
+        redirect_field_name=""
+    )
+    if function:
+        return actual_decorator(function)
+    return actual_decorator
