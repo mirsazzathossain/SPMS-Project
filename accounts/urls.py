@@ -12,6 +12,7 @@ urlpatterns = [
     path('verify/', views.verify, name='verify'),
     path('logout/', views.signout, name='logout'),
     path('register/', views.signup, name='register'),
+    path('resend_verification/', views.resend, name='resend'),
     path('activate/<uidb64>/<token>', views.activate, name='activate'),
     path(
         'password_change/', 

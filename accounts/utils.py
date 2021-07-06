@@ -1,11 +1,10 @@
 from django.contrib.auth.tokens import PasswordResetTokenGenerator
 from django.contrib.sites.shortcuts import get_current_site
+from django.core.mail.message import EmailMultiAlternatives
 from django.template.loader import render_to_string
 from django.utils.http import urlsafe_base64_encode
 from django.utils.encoding import force_bytes
-from django.core.mail import EmailMessage
-from django.contrib.auth.decorators import login_required, user_passes_test
-from django.conf import settings
+from django.contrib.auth.decorators import user_passes_test
 import six
 import threading
 
@@ -18,21 +17,27 @@ generate_token = TokenGenerator()
     
 
 def send_activation_email(request, user):
+    scheme = request.scheme
     domain_name = get_current_site(request)
     email_subject = 'Verify Email Address'
-    email_body = render_to_string('accounts/verification-mail.html', {
+    msg_plain = render_to_string('accounts/verification-mail.txt', {
+        'protocol': scheme,
         'user': user,
         'domain': domain_name,
         'uid': urlsafe_base64_encode(force_bytes(user.pk)),
         'token': generate_token.make_token(user)
     })
-
-    email = EmailMessage(
-        subject=email_subject, 
-        body=email_body,
-        from_email=settings.EMAIL_FROM_USER,
-        to=[user.email]
-    )
+    email_body = render_to_string('accounts/verification-mail.html', {
+        'protocol': scheme,
+        'user': user,
+        'domain': domain_name,
+        'uid': urlsafe_base64_encode(force_bytes(user.pk)),
+        'token': generate_token.make_token(user)
+    })
+    
+    email = EmailMultiAlternatives(email_subject, msg_plain)
+    email.attach_alternative(email_body, "text/html")
+    email.to = [user.email]
 
     EmailThread(email).start()
 

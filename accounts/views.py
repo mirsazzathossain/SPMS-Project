@@ -37,6 +37,7 @@ def signin(request):
             if user is not None:
                 login(request, user)
                 if not user.is_email_verified:
+                    send_activation_email(request, user)
                     return redirect('accounts:verify')
 
                 return redirect('app:home')
@@ -49,7 +50,6 @@ def signin(request):
 
 @login_required(login_url='accounts:login', redirect_field_name='')
 def verify(request):
-    print(request.user.is_email_verified)
     if request.user.is_email_verified:
         return redirect('app:home')
 
@@ -73,3 +73,12 @@ def activate(request, uidb64, token):
 def signout(request):
     logout(request)
     return redirect('accounts:login')
+
+@login_required(login_url='accounts:login', redirect_field_name='')
+def resend(request):
+    if request.user.is_email_verified:
+        return redirect("app:home")
+
+    send_activation_email(request, request.user)
+    messages.success(request, 'A new verification link has been sent to the email address you provided during registration.')
+    return redirect('accounts:verify')

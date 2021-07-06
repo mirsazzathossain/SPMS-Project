@@ -15,14 +15,16 @@
             </div>
         {% endif %}
 
-        <!--
-        <div class="mb-4 font-medium text-sm text-green-600">
-            A new verification link has been sent to the email address you provided during registration.
-        </div>
-        -->
+        {% for message in messages %}
+            <div class="mb-4 font-medium text-sm text-green-600">
+                {{ message }}
+            </div>
+        {% endfor %}
+
+        
 
         <div class="mt-4 flex items-center justify-between">
-            <form method="POST" action="">
+            <form method="POST" action="{% url 'accounts:resend' %}">
                 {% csrf_token %}
                 <div>
                     <button class="block w-full px-4 py-2 mt-4 text-sm font-medium leading-5 text-center text-white transition-colors duration-150 bg-purple-600 border border-transparent rounded-lg active:bg-purple-600 hover:bg-purple-700 focus:outline-none focus:shadow-outline-purple" type="submit">Resend Verification Email</button>
