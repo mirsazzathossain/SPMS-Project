@@ -1,2 +1,3 @@
 spms-venv
 node_modules
+.env

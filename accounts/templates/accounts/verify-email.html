@@ -3,9 +3,17 @@
 {% block content %}
 <div class="flex items-center justify-center min-h-screen p-6 bg-gray-50 dark:bg-gray-900">
     <div class="p-8 w-full xs:w-7/8 sm:w-5/6 md:w-2/3 lg:w-1/3 bg-white rounded-lg shadow-xl dark:bg-gray-800">
-        <div class="mb-4 text-sm text-gray-600">
-            Thanks for signing up! Before getting started, could you verify your email address by clicking on the link we just emailed to you? If you didn't receive the email, we will gladly send you another.
-        </div>
+        
+        {% url 'accounts:register' as register_url %}
+        {% if register_url in request.META.HTTP_REFERER %}
+            <div class="mb-4 text-sm text-gray-600">
+                Thanks for signing up! Before getting started, could you verify your email address by clicking on the link we just emailed to you? If you didn't receive the email, we will gladly send you another.
+            </div>
+        {% else %}
+            <div class="mb-4 text-sm text-gray-600">
+                Welcome back! Before getting started, could you verify your email address by clicking on the link we just emailed to you? If you didn't receive the email, we will gladly send you another.
+            </div>
+        {% endif %}
 
         <!--
         <div class="mb-4 font-medium text-sm text-green-600">
@@ -21,7 +29,7 @@
                 </div>
             </form>
 
-            <form method="" action="{% url 'accounts:login' %}">
+            <form method="POST" action="{% url 'accounts:logout' %}">
                 {% csrf_token %}
 
                 <button type="submit" class="underline text-sm text-gray-600 hover:text-gray-900">
