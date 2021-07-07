@@ -15,11 +15,14 @@
             </div>
         {% endif %}
 
-        {% for message in messages %}
-            <div class="mb-4 font-medium text-sm text-green-600">
-                {{ message }}
-            </div>
-        {% endfor %}
+        {% url 'accounts:verify' as verify_url %}
+        {% if verify_url in request.META.HTTP_REFERER %}
+            {% for message in messages %}
+                <div class="mb-4 font-medium text-sm text-green-600">
+                    {{ message }}
+                </div>
+            {% endfor %}
+        {% endif %}
 
         
 

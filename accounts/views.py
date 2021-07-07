@@ -6,7 +6,7 @@ from django.utils.http import urlsafe_base64_decode
 from .forms import SignInForm, SignUpForm
 from django.contrib import messages
 from .utils import send_activation_email, generate_token
-from django.contrib.auth.decorators import login_required, user_passes_test
+from django.contrib.auth.decorators import login_required
 
 def signup(request):
     if request.user.is_authenticated:
@@ -15,7 +15,7 @@ def signup(request):
         form = SignUpForm(request.POST)
         if form.is_valid():
             user = form.save()
-            login(request, user)
+            login(request, user, backend='django.contrib.auth.backends.ModelBackend')
             send_activation_email(request, user)
             return redirect('accounts:verify')
         messages.error(request, "Unsuccessful registration.")
@@ -35,7 +35,7 @@ def signin(request):
             user = authenticate(username=username, password=password)
 
             if user is not None:
-                login(request, user)
+                login(request, user, backend='django.contrib.auth.backends.ModelBackend')
                 if not user.is_email_verified:
                     send_activation_email(request, user)
                     return redirect('accounts:verify')
