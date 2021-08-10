@@ -2,3 +2,5 @@ spms-venv
 node_modules
 .env
 static_cdn
+
+tailwind.output.css
