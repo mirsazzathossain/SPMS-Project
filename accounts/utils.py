@@ -18,7 +18,7 @@ generate_token = TokenGenerator()
 
 def send_activation_email(request, user):
     scheme = request.scheme
-    domain_name = get_current_site(request)
+    domain_name = request.META['HTTP_HOST']
     email_subject = 'Verify Email Address'
     msg_plain = render_to_string('accounts/verification-mail.txt', {
         'protocol': scheme,
