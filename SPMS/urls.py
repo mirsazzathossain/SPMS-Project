@@ -17,8 +17,10 @@ from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
 from django.urls import include, path
+from django.shortcuts import redirect
 
 urlpatterns = [
+    path('', lambda request: redirect('app/', permanent=False)),
     path('app/', include('app.urls')),
     path('accounts/', include('accounts.urls')),
     path('accounts/', include('allauth.urls')),

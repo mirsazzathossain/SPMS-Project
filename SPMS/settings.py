@@ -129,7 +129,7 @@ WSGI_APPLICATION = 'SPMS.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.mysql',
-        'NAME': 'spms',
+        'NAME': 'SPMS',
         'USER': 'root',
         'PASSWORD': '',
         'HOST': '127.0.0.1',

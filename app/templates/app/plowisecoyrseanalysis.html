@@ -1,0 +1,163 @@
+{% extends "app/home.html" %}
+
+{% block content %}
+<main class="h-full pb-16 overflow-y-auto">
+  <div class="container px-6 mx-auto grid">
+    <h2 class="my-6 text-2xl font-semibold text-gray-700 dark:text-gray-200">
+      Aemester PLO wise Course
+    </h2>
+
+    <div class="flex flex-col flex-wrap mb-4 md:flex-row md:items-end md:space-x-4">
+      <label class="block text-sm">
+        <div
+          class="relative text-gray-500 focus-within:text-purple-600"
+        >
+          <select
+            class="block w-full mt-1 text-sm dark:text-gray-300 dark:border-gray-600 dark:bg-gray-700 form-multiselect focus:border-purple-400 focus:outline-none focus:shadow-outline-purple dark:focus:shadow-outline-gray" id='plos' multiple
+          >
+            <option value='1'>PLO1</option>
+            <option value='2'>PLO2</option>
+            <option value='3'>PLO3</option>
+            <option value='4'>PLO4</option>
+            <option value='5'>PLO5</option>
+            <option value='6'>PLO6</option>
+            <option value='7'>PLO7</option>
+            <option value='8'>PLO8</option>
+            <option value='9'>PLO9</option>
+            <option value='10'>PLO10</option>
+            <option value='11'>PLO11</option>
+            <option value='12'>PLO12</option>
+          </select>
+          
+        </div>
+      </label>
+
+      <label class="block text-sm">
+        <div
+          class="relative text-gray-500 focus-within:text-purple-600"
+        >
+          <select
+            class="block w-full mt-1 text-sm dark:text-gray-300 dark:border-gray-600 dark:bg-gray-700 form-select focus:border-purple-400 focus:outline-none focus:shadow-outline-purple dark:focus:shadow-outline-gray pr-40" id='b'
+          >
+            <option value='1'>Spring 2020</option>
+            <option value='2'>Summer 2020</option>
+            <option value='3'>Autumn 2020</option>
+          </select>
+          
+        </div>
+      </label>
+      <label class="block text-sm">
+        <div
+          class="relative text-gray-500 focus-within:text-purple-600"
+        >
+          <select
+            class="block w-full mt-1 text-sm dark:text-gray-300 dark:border-gray-600 dark:bg-gray-700 form-select focus:border-purple-400 focus:outline-none focus:shadow-outline-purple dark:focus:shadow-outline-gray pr-40" id='e'
+          >
+            <option value='1'>Spring 2020</option>
+            <option value='2'>Summer 2020</option>
+            <option value='3'>Autumn 2020</option>
+          </select>
+        </div>
+        
+      </label>
+      <div>
+        <button class="px-5 py-2 font-medium leading-5 text-white transition-colors duration-150 bg-purple-600 border border-transparent rounded-lg active:bg-purple-600 hover:bg-purple-700 focus:outline-none focus:shadow-outline-purple" id="searchstd">
+          Submit
+        </button>
+      </div>
+    </div>
+    
+
+    <div class="hidden" id='canvas'>
+      <!-- Bars chart -->
+      <div class="min-w-0 p-4 bg-white rounded-lg shadow-xs dark:bg-gray-800">
+        <h4 class="mb-4 font-semibold text-gray-800 dark:text-gray-300">
+          Course analysis based on semester for selected PLOs
+        </h4>
+        <canvas id="bars"></canvas>
+        <div
+          class="
+            flex
+            justify-center
+            mt-4
+            space-x-3
+            text-sm text-gray-600
+            dark:text-gray-400
+          "
+          id = "legend"
+        >
+          <!-- Chart legend -->
+          
+        </div>
+      </div>
+    </div>
+  </div>
+</main>
+
+<script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.3/dist/Chart.min.js"></script>
+<script type="text/javascript">
+  var myBar=null;
+  $('#searchstd').click(function(){
+    $('#canvas').addClass('grid');
+    $('#canvas').removeClass('hidden');
+
+    $.ajax({  
+      url: '/app/plowcour',  
+      type: 'POST',  
+      data: { 
+        plos: $('#plos option:selected').toArray().map(item => item.text).join(),
+        b: $('#b :selected').text(),
+        e: $('#e :selected').text(),
+        csrfmiddlewaretoken: '{{ csrf_token }}',
+      },
+      dataType: 'json',  
+      success: function(data, textStatus, xhr) {  
+        var datasetlist = []
+        $("#legend").empty();
+        
+        for (let i = 0; i < data.courses.length; i++) {
+            datasetlist.push({
+                label: data.courses[i],
+                backgroundColor: '#'+Math.floor(Math.random()*16777215).toString(16),
+                borderWidth: 1,
+                data: data.acheived[i],
+            });
+        }
+
+        const barConfig = {
+          type: 'bar',
+          data: {
+            labels: data.plonum,
+            datasets: datasetlist,
+          },
+          options: {
+            responsive: true,
+            scales: {
+              yAxes: [{
+                  ticks: {
+                      beginAtZero: true,
+                      max:100,
+                  },
+                  type: 'linear',
+              }],
+            },
+            maintainAspectRatio: true
+          },
+        }
+
+        if(myBar!=null){
+            myBar.destroy();
+        }
+        const barsCtx = document.getElementById('bars');
+        myBar = new Chart(barsCtx, barConfig);
+      },  
+      error: function(xhr, textStatus, errorThrown) {  
+        console.log(textStatus);   
+      }  
+    });  
+  });
+</script>
+
+
+{% endblock content %}

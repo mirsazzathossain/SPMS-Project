@@ -1,0 +1,106 @@
+{% extends "app/home.html" %}
+
+{% block content %}
+<main class="h-full pb-16 overflow-y-auto">
+  <div class="container px-6 mx-auto grid">
+    <h2 class="my-6 text-2xl font-semibold text-gray-700 dark:text-gray-200">
+      Student PLO Table
+    </h2>
+
+    <div class="flex flex-col flex-wrap mb-4 md:flex-row md:items-end md:space-x-4">
+      <label class="block text-sm {% if type == 'Student' %}hidden{% endif %}">
+        <div
+          class="relative text-gray-500 focus-within:text-purple-600"
+        >
+          <input
+            class="block w-full pr-20 mt-1 text-sm text-black dark:text-gray-300 dark:border-gray-600 dark:bg-gray-700 focus:border-purple-400 focus:outline-none focus:shadow-outline-purple dark:focus:shadow-outline-gray form-input"
+            placeholder="Enter student ID" id='stdid'
+            {% if type == 'Student' %}
+              value="{{id}}" disabled
+            {% endif %}
+          />
+          <button id="searchstd"
+            class="absolute inset-y-0 right-0 px-4 text-sm font-medium leading-5 text-white transition-colors duration-150 bg-purple-600 border border-transparent rounded-r-md active:bg-purple-600 hover:bg-purple-700 focus:outline-none focus:shadow-outline-purple"
+          >
+            Search
+          </button>
+        </div>
+      </label>
+    </div>
+    
+    <div class="w-full mb-8 overflow-hidden rounded-lg shadow-xs" id='table'>
+        <div class="w-full overflow-x-auto">
+            <table class="w-full whitespace-no-wrap">
+                <thead id='thead'>
+                    
+                </thead>
+                <tbody
+                class="bg-white divide-y dark:divide-gray-700 dark:bg-gray-800" id='tbody'
+                >
+                    
+                </tbody>
+            </table>
+        </div>
+    </div>
+  </div>
+</main>
+
+<script src="https://code.jquery.com/jquery-3.4.1.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@2.9.3/dist/Chart.min.js"></script>
+<script type="text/javascript">
+  $('#searchstd').click(function(){
+    $('#table').removeClass('hidden');
+    $.ajax({  
+      url: '/app/plotable',  
+      type: 'POST',  
+      data: { 
+        id: $('#stdid').val(),
+        csrfmiddlewaretoken: '{{ csrf_token }}',
+      },
+      dataType: 'json',  
+      success: function(data, textStatus, xhr) { 
+        var html = '<tr class="text-xs font-semibold tracking-wide text-left text-gray-500 uppercase border-b dark:border-gray-700 bg-gray-50 dark:text-gray-400 dark:bg-gray-800"><th class="px-4 py-3">Courses</th>'
+        for(var i=0; i<data['plos'].length; i++){
+            for(var i=0; i<data['plos'].length; i++){
+                html += '<th class="px-4 py-3">';
+                html += data['plos'][i];
+                html += '</th>'
+            }
+        }
+        html += '</tr>';
+        $('#thead').append(html);
+          
+        for(var i=0; i<data['table'].length; i++){
+            html = '<tr class="text-gray-700 dark:text-gray-400">';
+            for(var j=0; j<data['table'][i].length; j++){
+                html += '<td class="px-4 py-3 text-sm value"';
+                
+                if(data['table'][i][j] != 'N/A' && j!=0){
+                    if(parseInt(data['table'][i][j]) >= 40) html += ' style = "color: green ! important;"';
+                    else html += ' style = "color: red ! important;"'
+                }
+
+                html += '>'+data['table'][i][j];
+                if(data['table'][i][j]>=0) html += '%';
+                html += '</td>';
+            }
+            html += '</tr>';
+
+            $('#tbody').append(html);
+        }
+  
+      },  
+      error: function(xhr, textStatus, errorThrown) {  
+        console.log(textStatus);   
+      }  
+    }); 
+  });
+
+
+  {% if type == 'Student' %}
+    $("#searchstd").trigger('click');
+  {% endif %}
+</script>
+
+
+{% endblock content %}
